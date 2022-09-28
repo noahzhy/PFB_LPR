@@ -32,31 +32,13 @@ def find_divider(img):
 def rebuild_image(img, index):
     w, h = img.size
     curr_w = int(w*.6)
-    top = img.crop((int(w*.2), 0, int(w*.8), index)).resize((curr_w, h), Image.BILINEAR)
+    top_start = int(w*.2)
+    top_end = int(w*.8)
+    top = img.crop((top_start, 0, top_end, index)).resize((curr_w, h), Image.BILINEAR)
     bottom = img.crop((0, index, w, h)).resize((w, h), Image.BILINEAR)
     # merge two images via horizontal stack
     img = np.hstack((top, bottom))
     return img
-
-
-# def rebuild_tensor(tensor, index):
-#     # rebuild tensor from index
-#     h = tensor.size(1)
-#     w = tensor.size(2)
-#     new_tensor = tensor[:, :index, int(w*.2):int(w*.8)]
-#     second_tensor = tensor[:, index:, :]
-    
-#     scale = h / index
-#     new_tensor = new_tensor.initializer().repeat(1, int(scale), 1)
-#     plt.figure()
-#     plt.subplot(1, 2, 1)
-#     plt.imshow(T.ToPILImage()(new_tensor), cmap='gray')
-#     plt.subplot(1, 2, 2)
-#     plt.imshow(T.ToPILImage()(second_tensor), cmap='gray')
-#     plt.show()
-#     # show image via matplotlib
-#     return new_tensor
-
 
 
 if __name__ == '__main__':
@@ -71,6 +53,8 @@ if __name__ == '__main__':
         img = Image.open(random_imgs[i]).convert('L').resize((w, h))
         ans = find_divider(img)
         img = rebuild_image(img, ans)
+        # save image named as '000.jpg', '001.jpg', ...
+        Image.fromarray(img).save(os.path.join('data/test', '{:03d}.jpg'.format(i)))
         # draw = ImageDraw.Draw(img)
         # draw.line((0, ans, w, ans), fill=255, width=1)
         ax.imshow(img, cmap='gray')
